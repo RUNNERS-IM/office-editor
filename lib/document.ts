@@ -39,7 +39,7 @@ const fileInput = View('input')
   .build() as HTMLInputElement;
 document.body.appendChild(fileInput);
 
-export const onCreateNew = async (ext: string, options?: { docId?: string }): Promise<void> => {
+export const onCreateNew = async (ext: string, options?: { docId?: string; fileName?: string }): Promise<void> => {
   const opening = beginDocumentOpen();
   const operation = opening.id;
   // Callers own the loading indicator (the control panel shows it around this
@@ -48,7 +48,7 @@ export const onCreateNew = async (ext: string, options?: { docId?: string }): Pr
     if (hideControlPanelFn) {
       hideControlPanelFn();
     }
-    const fileName = 'Untitled' + ext;
+    const fileName = options?.fileName || 'Untitled' + ext;
     await loadEditorApi();
     opening.assertCurrent();
     await handleDocumentOperation({ fileName, isNew: true, signal: opening.signal, isCurrent: opening.isCurrent });

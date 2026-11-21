@@ -25,7 +25,8 @@
          off and the token layer's media query decides. Kept inline and tiny. -->
     <script>
       try {
-        var t = localStorage.getItem('ran-theme');
+        var q = new URLSearchParams(location.search).get('theme');
+        var t = q === 'dark' || q === 'light' ? q : localStorage.getItem('ran-theme');
         if (t === 'dark' || t === 'light') {
           document.documentElement.setAttribute('data-ran-theme', t);
           document.documentElement.setAttribute('theme', t);

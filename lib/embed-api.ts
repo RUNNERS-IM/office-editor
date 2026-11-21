@@ -15,7 +15,9 @@ type EmbedMessageType =
   | 'document:open-buffer'
   | 'document:set-readonly'
   | 'document:save'
-  | 'document:get-state';
+  | 'document:get-state'
+  | 'document:new'
+  | 'document:set-theme';
 
 type EmbedMessage = {
   id?: string;
@@ -230,6 +232,24 @@ async function handleMessage(event: MessageEvent): Promise<void> {
         break;
       }
 
+      case 'document:new': {
+        // RUNNERS: the host page asks for a blank document (docx | xlsx | pptx) without a file of its own
+        const ext = String(payload.ext || '').replace(/^\./, '').toLowerCase();
+        if (!['docx', 'xlsx', 'pptx'].includes(ext)) throw new Error('document:new requires ext docx, xlsx or pptx');
+        const { onCreateNew } = await import('./document');
+        await onCreateNew(`.${ext}`, { fileName: payload.fileName ? String(payload.fileName) : undefined });
+        postToParent('document:opened', { readonly: getReadonlyMode() }, message.id);
+        break;
+      }
+
+      case 'document:set-theme': {
+        // RUNNERS: follow the host page's light / dark switch. lib/editor-theme.ts watches this attribute
+        const theme = payload.dark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-ran-theme', theme);
+        document.documentElement.setAttribute('theme', theme);
+        break;
+      }
+
       case 'document:get-state':
         postToParent(
           'document:state',
@@ -276,7 +296,13 @@ export function initEmbedApi(): void {
     void handleMessage(event);
   });
 
-  window.addEventListener('load', () => {
+  // RUNNERS: the editor bundle awaits its locale table at module top level, so the page can finish
+  // loading before this line runs and a plain 'load' listener never fires. Announce right away then.
+  if (document.readyState === 'complete') {
     postToParent('document:ready');
-  });
+  } else {
+    window.addEventListener('load', () => {
+      postToParent('document:ready');
+    });
+  }
 }

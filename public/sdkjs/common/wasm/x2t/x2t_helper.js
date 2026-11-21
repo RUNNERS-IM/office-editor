@@ -386,7 +386,7 @@
         // Docker re-encodes the same URL as gzip for ordinary HTTP (#267).
         // Each host declares the matching Content-Encoding, so the browser
         // decodes it at the network layer; nothing here decompresses anything.
-        this.WASM_PATH = '../../../../sdkjs/common/wasm/x2t/x2t.wasm.br'
+        this.WASM_PATH = '../../../../sdkjs/common/wasm/x2t/x2t.wasm'
         // Total tries for that fetch, and the step of the linear backoff
         // between them (0.5 s, then 1 s). Small on purpose: a CDN blip is over
         // in a moment, and anything longer is time the user spends watching a

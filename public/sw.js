@@ -259,7 +259,7 @@ self.addEventListener('install', (event) => {
           '/sdkjs/common/wasm/x2t/x2t_helper.js',
           // Export must work on the first offline save, before conversion has run.
           '/sdkjs/common/wasm/x2t/x2t.js',
-          '/sdkjs/common/wasm/x2t/x2t.wasm.br',
+          '/sdkjs/common/wasm/x2t/x2t.wasm',
           '/sdkjs/common/wasm/x2t/x2t.worker.js',
           ...EDITOR_BOOTSTRAP_HTML,
           ...EDITOR_BOOTSTRAP_HTML.map((path) => path.replace('/index.html', '/app.js')),

@@ -29,7 +29,7 @@ importScripts('x2t_helper.js');
 // document, which is not where this script lives.
 var converter = AscCommon.x2t;
 converter.SCRIPT_PATH = new URL('x2t.js', self.location.href).href;
-converter.WASM_PATH = new URL('x2t.wasm.br', self.location.href).href;
+converter.WASM_PATH = new URL('x2t.wasm', self.location.href).href;
 
 /**
  * Media crosses as bytes in both directions. Blob URLs are realm-bound in

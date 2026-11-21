@@ -243,3 +243,4 @@ public/pt/index.html
 
 # Local implementation plans and verification logs.
 /.superpowers/
+public/sdkjs/common/wasm/x2t/x2t.wasm
