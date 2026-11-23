@@ -642,6 +642,15 @@ describe('onlyoffice-editor', () => {
       expect(config.editorConfig.customization.features.spellcheck).toEqual({ mode: false, change: false });
     });
 
+    it('hides the status bar language pickers, which only feed the disabled spellchecker', async () => {
+      const config = await createAndGetConfig({
+        fileName: 'a.docx',
+        fileType: 'docx',
+      });
+
+      expect(config.editorConfig.customization.layout).toEqual({ statusBar: { textLang: false, docLang: false } });
+    });
+
     it('defaults the interface theme to classic Office light', async () => {
       window.localStorage.removeItem('ui-theme-id');
       const config = await createAndGetConfig({ fileName: 'a.docx', fileType: 'docx' });

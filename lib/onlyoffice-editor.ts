@@ -5,6 +5,7 @@ import { waitForAppWorkerControl } from './offline-worker-control';
 import { getOnlyOfficeLang, t } from '@ranuts/shared/i18n';
 import { DOCUMENT_TYPE_MAP } from '@ranuts/shared/document-utils';
 import { prepareEditorIframe } from './onlyoffice/iframe-guards';
+import { applyNewDocumentLanguageInFrames } from './onlyoffice/new-document-language';
 import { markEditorFrameReady, watchEditorFrame } from './onlyoffice/frame-watchdog';
 import {
   describeOpenFailure,
@@ -197,6 +198,10 @@ function createPersonalEditorInstance(config: {
         // Keep About reachable for copyright, version, license and source
         // information. Product marks are hidden separately; see NOTICE.
         hideRightMenu: true,
+        // RUNNERS: the spellchecker is off (features.spellcheck below), so the status bar's text and
+        // document language pickers have nothing to feed. On a phone they overflowed the status bar
+        // and pushed the zoom control off screen.
+        layout: { statusBar: { textLang: false, docLang: false } },
         uiTheme: resolveUiTheme(),
         ...(isCompactViewport() ? compactViewportCustomization() : {}),
         features: {
@@ -259,6 +264,12 @@ function createPersonalEditorInstance(config: {
         resetCompactLayoutState();
         syncCompactLayout(normalizedType, { force: true });
         installViewportFollow(normalizedType);
+        // RUNNERS: a blank document (no bytes handed in) carries the SDK
+        // template's language -- zh-CN for a presentation. Give it the
+        // visitor's language instead; see ./onlyoffice/new-document-language.
+        if (binData === undefined && (normalizedType === 'docx' || normalizedType === 'pptx')) {
+          applyNewDocumentLanguageInFrames(window, editorLang);
+        }
         // Readonly opens mount with full edit permissions and get locked
         // here instead (asc_setRestriction only works once the document is
         // loaded). Read the live flag rather than the captured config value:

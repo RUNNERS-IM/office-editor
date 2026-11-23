@@ -25,6 +25,10 @@ export function injectLocalChromeCss(doc: Document): void {
       '#id-about-licensor-logo .asc-about-version:not(#id-about-licensor-version-name) { display: none !important; }',
       `@media (max-width: ${COMPACT_VIEWPORT_MAX_WIDTH}px), (pointer: coarse) and (max-height: ${COMPACT_VIEWPORT_MAX_WIDTH}px) {`,
       '  [data-layout-name="rightMenu"] { display: none !important; }',
+      // RUNNERS: the document editor's status bar ran 18 px past a 390 px
+      // phone and clipped the zoom-in button. Side-by-side pages cannot fit
+      // on a phone anyway, so its toggle is the one to drop.
+      '  #status-btn-multiple-pages { display: none !important; }',
       '}',
     ].join('\n');
     (doc.head || doc.documentElement).appendChild(style);
