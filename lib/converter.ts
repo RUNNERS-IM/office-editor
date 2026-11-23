@@ -1,6 +1,7 @@
 import { t } from '@ranuts/shared/i18n';
 import { X2TConverter, isHtmlDocument, preprocessDocxRuby } from '@ranuts/converter';
 import { createEditorInstance, loadEditorApi } from './onlyoffice-editor';
+import { loadBlankTemplate } from './onlyoffice/blank-templates';
 import { getDocumentExtension, getDocumentType } from '@ranuts/shared/document-utils';
 
 // Export types
@@ -90,6 +91,11 @@ export async function handleDocumentOperation(options: {
       } else {
         binData = await file.arrayBuffer();
       }
+    } else {
+      // RUNNERS: the SDK's own blank document is the Chinese edition's
+      // (等线 10.5 pt, 3.17 cm side margins). Start from a template that
+      // matches the visitor's language instead; undefined keeps the SDK blank.
+      binData = await loadBlankTemplate(fileType, options.signal);
     }
 
     if (options.isCurrent && !options.isCurrent()) throw new DOMException('Document open superseded', 'AbortError');
@@ -100,6 +106,7 @@ export async function handleDocumentOperation(options: {
       fileType: openFileType,
       binData,
       readonly,
+      isNew,
       isCurrent: options.isCurrent,
     });
   } catch (error: any) {

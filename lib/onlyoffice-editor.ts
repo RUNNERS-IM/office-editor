@@ -125,8 +125,10 @@ function createPersonalEditorInstance(config: {
   fileType: string;
   binData?: ArrayBuffer;
   editorLang: string;
+  /** A document created here (from the SDK blank or a RUNNERS template), not one the visitor opened. */
+  isNew?: boolean;
 }): void {
-  const { fileName, fileType, binData, editorLang } = config;
+  const { fileName, fileType, binData, editorLang, isNew = false } = config;
 
   if (currentDocumentBlobUrl) {
     URL.revokeObjectURL(currentDocumentBlobUrl);
@@ -267,7 +269,7 @@ function createPersonalEditorInstance(config: {
         // RUNNERS: a blank document (no bytes handed in) carries the SDK
         // template's language -- zh-CN for a presentation. Give it the
         // visitor's language instead; see ./onlyoffice/new-document-language.
-        if (binData === undefined && (normalizedType === 'docx' || normalizedType === 'pptx')) {
+        if ((isNew || binData === undefined) && (normalizedType === 'docx' || normalizedType === 'pptx')) {
           applyNewDocumentLanguageInFrames(window, editorLang);
         }
         // Readonly opens mount with full edit permissions and get locked
@@ -358,6 +360,8 @@ export function createEditorInstance(config: {
   fileType: string;
   binData?: ArrayBuffer;
   readonly?: boolean;
+  /** RUNNERS: a new document, even when a blank template is passed as binData. */
+  isNew?: boolean;
   isCurrent?: () => boolean;
   /** Set only by retryCurrentOpen: keeps the attempt's one retry budget. */
   isRetry?: boolean;
@@ -378,7 +382,7 @@ export function createEditorInstance(config: {
     registerOpenAttempt({ ...config, isCurrent: () => closeRevision === getDocumentCloseRevision() });
     resetUnsavedChanges();
     resolveBuildBitness();
-    const { fileName, fileType, binData, readonly = false } = config;
+    const { fileName, fileType, binData, readonly = false, isNew = false } = config;
     setReadonlyState(readonly);
 
     // Check if there's an existing editor that needs cleanup
@@ -431,7 +435,7 @@ export function createEditorInstance(config: {
     // With no editor to replace, obsolete work can still be skipped safely.
     if (!hasExistingEditor) assertCurrent();
     assertNotClosed();
-    createPersonalEditorInstance({ fileName, fileType, binData, editorLang });
+    createPersonalEditorInstance({ fileName, fileType, binData, editorLang, isNew });
   });
 }
 
