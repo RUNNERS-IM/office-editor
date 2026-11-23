@@ -129,7 +129,10 @@ The changes made to it are:
   * public/web-apps/apps/*/main/locale/*.json -- missing keys filled in from
     en.json by bin/locale-fill.mjs for the seven site languages. Untranslated
     keys returned `undefined` and crashed the tooltip renderer. Values only;
-    no key is removed.
+    no key is removed. On 2026-11-24 the Korean files (ko.json of the
+    document, spreadsheet and presentation editors) also received Korean
+    values for 809 keys that had been filled with English, following the
+    Korean Microsoft Office terms; placeholders are unchanged.
   * public/web-apps/apps/api/documents/api.js -- modified 2026-10-15 to
     register the Safari mousewheel compatibility listener as a function rather
     than an inline event attribute, preserving the editor's strict CSP.

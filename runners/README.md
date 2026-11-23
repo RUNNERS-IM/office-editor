@@ -8,7 +8,11 @@
 
 - `lib/embed-api.ts`: 끼워 쓰기 명령 `document:new`(빈 문서) · `document:set-theme`(밝은 · 어두운 화면)를 더함. 편집기가 페이지를 다 불러온 뒤 말을 듣기 시작해 `document:ready` 를 못 보내던 경우를 고침
 - `lib/document.ts`: 새 문서 이름을 바깥 페이지가 정함
+- `lib/onlyoffice-editor.ts`: 아래 상태 막대의 글 언어 · 문서 언어 칸을 숨김. 맞춤법 검사를 꺼 두어 쓸 데가 없는 칸인데, 휴대폰(390)에서 막대를 넘쳐 확대 단추를 화면 밖으로 밀어냈다
+- `lib/onlyoffice/guards/chrome.ts`: 좁은 화면(600px 이하)에서 워드 상태 막대의 「여러 쪽 보기」 단추를 숨김. 390 에서 막대가 18px 넘쳐 확대 단추가 잘렸다
 - `editor.html`: 주소의 `?theme=dark|light` 로 첫 화면 색을 정함
+- `lib/onlyoffice/new-document-language.ts`: 새 문서 · 새 프레젠테이션의 글 언어를 화면 언어로 맞춤. 엔진 안 빈 틀이 워드는 영어(미국), 프레젠테이션은 중국어(중국)로 들어 있었다. 손님이 연 파일의 언어는 바꾸지 않는다
+- `public/web-apps/apps/*/main/locale/ko.json`: 영어로 남아 있던 한국어 화면 문구 809개(엑셀 셀 스타일 이름 · 붙여넣기 메뉴 · 단축키 이름 등)를 한국어판 Office 용어로 옮김
 - x2t 변환기: 압축 안 한 `x2t.wasm` 을 받게 바꿈(`x2t_helper.js` · `x2t.worker.js` · `sw.js`). 빌드 때 `x2t.wasm.br` 를 풀어 만든다
 - `runners/build.sh`: 위 압축 풀기 + 원래 빌드 + 첫 화면을 runners.im 도구로 넘김
 - `.github/workflows/runners-pages.yml`: `runners` 가지에 올리면 GitHub Pages(office.runners.im)로 배포. 원래 저장소의 배포 · 시험 작업은 뺐다
