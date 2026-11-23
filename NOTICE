@@ -132,7 +132,8 @@ The changes made to it are:
     no key is removed. On 2026-11-24 the Korean files (ko.json of the
     document, spreadsheet and presentation editors) also received Korean
     values for 809 keys that had been filled with English, following the
-    Korean Microsoft Office terms; placeholders are unchanged.
+    Korean Microsoft Office terms, and 1,318 existing Korean values that
+    were mistranslated were corrected; placeholders are unchanged.
   * public/web-apps/apps/api/documents/api.js -- modified 2026-10-15 to
     register the Safari mousewheel compatibility listener as a function rather
     than an inline event attribute, preserving the editor's strict CSP.
