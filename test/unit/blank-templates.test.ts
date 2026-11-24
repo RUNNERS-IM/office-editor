@@ -10,12 +10,14 @@ describe('blankTemplatePath', () => {
     expect(blankTemplatePath('docx', 'ko')).toBe('/runners/templates/blank-ko.docx');
     expect(blankTemplatePath('.docx', 'en')).toBe('/runners/templates/blank-default.docx');
     expect(blankTemplatePath('docx', 'pt-PT')).toBe('/runners/templates/blank-default.docx');
+    expect(blankTemplatePath('pptx', 'ko')).toBe('/runners/templates/blank-ko.pptx');
+    expect(blankTemplatePath('.PPTX', 'ja')).toBe('/runners/templates/blank-default.pptx');
   });
 
   it('keeps the SDK blank for Chinese visitors and for other formats', () => {
     expect(blankTemplatePath('docx', 'zh-CN')).toBeNull();
     expect(blankTemplatePath('docx', 'zh-TW')).toBeNull();
-    expect(blankTemplatePath('pptx', 'ko')).toBeNull();
+    expect(blankTemplatePath('pptx', 'zh-CN')).toBeNull();
     expect(blankTemplatePath('xlsx', 'en')).toBeNull();
   });
 });
@@ -74,6 +76,24 @@ describe('shipped templates', () => {
       expect(theme).toContain('<a:minorFont><a:latin typeface="Calibri"></a:latin><a:ea typeface="' + ea + '">');
       expect(styles).toContain(`<w:sz w:val="${size}" />`);
       expect(styles).not.toMatch(/<w:docDefaults>.*zh-CN.*<\/w:docDefaults>/s);
+      expect(files['docProps/core.xml']).not.toContain('lastModifiedBy');
+    }
+  });
+
+  it('give presentations Calibri theme fonts and the visitor language instead of DengXian and zh-CN', () => {
+    for (const [name, lang, ea] of [
+      ['blank-ko.pptx', 'ko-KR', '맑은 고딕'],
+      ['blank-default.pptx', 'en-US', ''],
+    ] as const) {
+      const files = read(name);
+      const theme = files['ppt/theme/theme1.xml'];
+      expect(theme).toContain('<a:majorFont><a:latin typeface="Calibri Light"></a:latin><a:ea typeface="' + ea + '">');
+      expect(theme).toContain('<a:minorFont><a:latin typeface="Calibri"></a:latin><a:ea typeface="' + ea + '">');
+      for (const [path, xml] of Object.entries(files)) {
+        expect(xml, path).not.toContain('等线');
+        expect(xml, path).not.toContain('zh-CN');
+      }
+      expect(files['ppt/presentation.xml']).toContain(`lang="${lang}"`);
       expect(files['docProps/core.xml']).not.toContain('lastModifiedBy');
     }
   });
