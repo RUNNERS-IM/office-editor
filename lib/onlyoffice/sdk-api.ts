@@ -24,6 +24,9 @@ export type SdkEditorApi = {
   /** Word and presentation editors: the rulers, with their getter. */
   asc_SetViewRulers?: (visible: boolean) => void;
   asc_GetViewRulers?: () => boolean;
+  /** Spreadsheet editor: whether a cell is being typed into, and leaving it (cancel = false keeps the text). */
+  asc_getCellEditMode?: () => boolean;
+  asc_closeCellEditor?: (cancel?: boolean) => boolean;
 };
 
 /**
@@ -63,4 +66,30 @@ export function getSdkEditorApi(): SdkEditorApi | null {
     }
   }
   return null;
+}
+
+/**
+ * RUNNERS: text typed into a spreadsheet cell is not part of the document until
+ * the cell is left (Enter, Tab, a click elsewhere). Until then the SDK neither
+ * counts it as a change nor writes it when exporting, so a visitor who typed
+ * into a cell and pressed the host's Save got a file without that text, and
+ * the host's Close did not ask first. Excel itself takes the text in on save.
+ */
+export function hasPendingCellEdit(api: SdkEditorApi | null = getSdkEditorApi()): boolean {
+  try {
+    return Boolean(api?.asc_getCellEditMode?.());
+  } catch {
+    return false;
+  }
+}
+
+/** Enter the text of the cell being typed into, as leaving the cell would. Returns true when there was one. */
+export function commitPendingCellEdit(api: SdkEditorApi | null = getSdkEditorApi()): boolean {
+  if (!api || !hasPendingCellEdit(api) || typeof api.asc_closeCellEditor !== 'function') return false;
+  try {
+    api.asc_closeCellEditor(false);
+    return true;
+  } catch {
+    return false;
+  }
 }

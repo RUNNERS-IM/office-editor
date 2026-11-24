@@ -6,7 +6,7 @@
 
 ## 고친 것 (2026-11-21 부터, `runners` 가지)
 
-- `lib/embed-api.ts`: 끼워 쓰기 명령 `document:new`(빈 문서) · `document:set-theme`(밝은 · 어두운 화면)를 더함. 편집기가 페이지를 다 불러온 뒤 말을 듣기 시작해 `document:ready` 를 못 보내던 경우를 고침
+- `lib/embed-api.ts`: 끼워 쓰기 명령 `document:new`(빈 문서) · `document:set-theme`(밝은 · 어두운 화면)를 더함. 편집기가 페이지를 다 불러온 뒤 말을 듣기 시작해 `document:ready` 를 못 보내던 경우를 고침. 바깥 페이지의 저장(`document:save`)은 엑셀 칸에 치는 중인 글(Enter 전)을 먼저 칸에 넣고 저장하고(`lib/onlyoffice/sdk-api.ts` 의 `commitPendingCellEdit`), 상태 묻기(`document:get-state`)는 그 글도 「저장 안 한 고침」으로 알린다. 전에는 그 글이 저장 파일에서 빠지고 닫기도 묻지 않았다. 자동 저장은 손님이 치는 칸을 끊지 않게 넣지 않는다
 - `lib/document.ts`: 새 문서 이름을 바깥 페이지가 정함
 - `lib/onlyoffice-editor.ts`: 아래 상태 막대의 글 언어 · 문서 언어 칸을 숨김. 맞춤법 검사를 꺼 두어 쓸 데가 없는 칸인데, 휴대폰(390)에서 막대를 넘쳐 확대 단추를 화면 밖으로 밀어냈다
 - `lib/onlyoffice/guards/chrome.ts`: 좁은 화면(600px 이하)에서 워드 상태 막대의 「여러 쪽 보기」 단추를 숨김. 390 에서 막대가 18px 넘쳐 확대 단추가 잘렸다

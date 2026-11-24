@@ -6,6 +6,7 @@ import { handleDocumentOperation, loadEditorApi } from './converter';
 import { openDocumentFromUrl } from './document';
 import { getReadonlyMode, requestSaveDocument, setReadonlyMode } from './onlyoffice-editor';
 import { captureSavePoint, commitSavePoint } from './onlyoffice/save-point';
+import { commitPendingCellEdit, hasPendingCellEdit } from './onlyoffice/sdk-api';
 import { hasUnsavedChanges, markDocumentSaved, onUnsavedChangesChange } from './unsaved-guard';
 
 type EmbedMessageType =
@@ -206,6 +207,10 @@ async function handleMessage(event: MessageEvent): Promise<void> {
         const LEGACY_TARGET: Record<string, string> = { XLS: 'XLSX', DOC: 'DOCX', PPT: 'PPTX' };
         const defaultExt = LEGACY_TARGET[currentExt] || currentExt || 'XLSX';
         const returnOriginalOnTimeout = Boolean(payload.returnOriginalOnTimeout);
+        // RUNNERS: a cell still being typed into goes into the file, as in Excel.
+        // Only here, on the host's explicit save: autosave must not pull the
+        // visitor out of the cell they are typing in.
+        commitPendingCellEdit();
         // Taken before the export starts: edits made while it runs are not in
         // the bytes the host receives, so they must keep the document dirty.
         const savePoint = captureSavePoint();
@@ -234,7 +239,9 @@ async function handleMessage(event: MessageEvent): Promise<void> {
 
       case 'document:new': {
         // RUNNERS: the host page asks for a blank document (docx | xlsx | pptx) without a file of its own
-        const ext = String(payload.ext || '').replace(/^\./, '').toLowerCase();
+        const ext = String(payload.ext || '')
+          .replace(/^\./, '')
+          .toLowerCase();
         if (!['docx', 'xlsx', 'pptx'].includes(ext)) throw new Error('document:new requires ext docx, xlsx or pptx');
         const { onCreateNew } = await import('./document');
         await onCreateNew(`.${ext}`, { fileName: payload.fileName ? String(payload.fileName) : undefined });
@@ -253,7 +260,12 @@ async function handleMessage(event: MessageEvent): Promise<void> {
       case 'document:get-state':
         postToParent(
           'document:state',
-          { readonly: getReadonlyMode(), hasDocument: Boolean(window.editor), dirty: hasUnsavedChanges() },
+          {
+            readonly: getReadonlyMode(),
+            hasDocument: Boolean(window.editor),
+            // RUNNERS: text typed into a cell but not entered yet is unsaved work too
+            dirty: hasUnsavedChanges() || hasPendingCellEdit(),
+          },
           message.id,
         );
         break;
